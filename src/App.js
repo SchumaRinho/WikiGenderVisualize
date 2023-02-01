@@ -1,10 +1,12 @@
-import React, {useEffect, useState } from 'react';
-import { ReactSVG } from 'react-svg'
+import React, {useEffect, useRef, useState } from 'react';
 import jsonata from 'jsonata';
 import * as d3 from "d3";
 import * as bertin from "bertin";
 import {geoEckert3} from "d3-geo-projection";
-import test from "./test.svg"
+
+import jsn from "./dataset/world.geojson.txt"
+import csvjson from "./dataset/csvjson.json"
+
 
 const App = () => {
   const [dataTest, setData] = useState([
@@ -14,9 +16,8 @@ const App = () => {
     { name: 'Jane', age: 40, city: 'New York' }
   ]);
   const [expression, setExpression] = useState('$[city="Chicago"]');
-  const [chart, setChart]  = useState();
+  const svg = useRef(null);
   var s = new XMLSerializer();
-  //viewof nbreaks = Inputs.range([3, 9], { label: "nbreaks", step: 1, value: 7 })
 
   const handleFilter = e => {
     e.preventDefault();
@@ -30,7 +31,7 @@ const App = () => {
   };
 
   const drawChart = (world,data) => {
-    setChart( // TROUVER UN MOYEN D INSERER LE SVG
+    return(
       bertin.draw({
         params: { projection: geoEckert3() },
         layers: [
@@ -39,17 +40,17 @@ const App = () => {
             geojson: bertin.merge(world, "ISO3", data, "id"),
             fill: {
               type: "choro",
-              values: "gdppc",
-              //nbreaks: nbreaks,
-              //method: method,
+              values: "pop",
+              nbreaks: 10,
+              method: "quantile", 
               //pal: pal,
-              //colors: pal,
+              colors: "Spectral",
               leg_round: -2,
               leg_title: `GDP per inh (in $)`,
               leg_x: 100,
               leg_y: 200
             },
-            tooltip: ["$name", "$gdppc", "(current US$)"]
+            tooltip: ["$name", "$pop", "(current US$)"]
           },
           { type: "graticule" },
           { type: "outline" }
@@ -59,14 +60,22 @@ const App = () => {
   }
 
   useEffect(() => {
-    d3.json("https://raw.githubusercontent.com/neocarto/bertin/main/data/world.geojson").then((json) => {
-      d3.csv(
-        "https://raw.githubusercontent.com/neocarto/bertin/main/data/data.csv",
-        d3.autoType
-      ).then((csv) => {
-          drawChart(json,csv);
-      })
-    })
+    csvjson.columns=["id","name","region","pop","gdp","gdppc","year"];
+    /*d3.csv(
+      data,
+      d3.autoType
+    ).then((coucou) => {areArraysEqual(coucou,csvjson) coucou.forEach(element => console.log(element["<!DOCTYPE html>"]))})*/
+
+    d3.json(jsn).then((json) => {
+        const chart = drawChart(json,csvjson);
+        if(svg.current.firstChild == null)
+          svg.current.appendChild(chart)
+        else{
+          svg.current.removeChild(document.querySelector("svg"))
+          svg.current.appendChild(chart)
+        }
+  })
+  
   },[expression])
 
   return (
@@ -97,7 +106,8 @@ const App = () => {
         </tbody>
       </table>
     </div>
-      {<ReactSVG src={test} />}
+    <div ref={svg}></div>
+      {/*<ReactSVG src={test} />*/}
     </>
   );
 };
