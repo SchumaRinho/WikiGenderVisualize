@@ -1,25 +1,29 @@
 import React, {useEffect, useRef, useState } from 'react';
-import jsonata from 'jsonata';
+//import jsonata from 'jsonata';
 import * as d3 from "d3";
 import * as bertin from "bertin";
 import {geoEckert3} from "d3-geo-projection";
+import { Form, FormControl} from 'react-bootstrap';
 
 import jsn from "./dataset/world.geojson.txt"
 import csvjson from "./dataset/csvjson.json"
+import fakedata from "./dataset/fakedata.json"
+
 
 
 const App = () => {
-  const [dataTest, setData] = useState([
-    { name: 'John', age: 30, city: 'New York' },
-    { name: 'Mike', age: 25, city: 'Los Angeles' },
-    { name: 'Sara', age: 35, city: 'Chicago' },
-    { name: 'Jane', age: 40, city: 'New York' }
-  ]);
   const [expression, setExpression] = useState('$[city="Chicago"]');
+  const [birthDate, setBirthDate] = useState(2000);
+  const [country, setCountry] = useState('English');
+
   const svg = useRef(null);
   var s = new XMLSerializer();
 
-  const handleFilter = e => {
+  const handleChangeOption = (event) => {
+    setCountry(event.target.value);
+  };
+
+  /*const handleFilter = e => {
     e.preventDefault();
     jsonata(expression).evaluate(dataTest).then(element => {
       setData([element])
@@ -28,7 +32,7 @@ const App = () => {
 
   const handleChange = e => {
     setExpression(e.target.value);
-  };
+  };*/
 
   const drawChart = (world,data) => {
     return(
@@ -40,17 +44,16 @@ const App = () => {
             geojson: bertin.merge(world, "ISO3", data, "id"),
             fill: {
               type: "choro",
-              values: "pop",
+              values: "meanMen",
               nbreaks: 10,
-              method: "quantile", 
-              //pal: pal,
+              method: "geometric", 
               colors: "Spectral",
               leg_round: -2,
-              leg_title: `GDP per inh (in $)`,
+              leg_title: `men in %`,
               leg_x: 100,
               leg_y: 200
             },
-            tooltip: ["$name", "$pop", "(current US$)"]
+            tooltip: ["$name" /*(d) => d.properties[birthDate][0]*/]
           },
           { type: "graticule" },
           { type: "outline" }
@@ -60,6 +63,12 @@ const App = () => {
   }
 
   useEffect(() => {
+    /*jsonata("[*].id").evaluate(csvjson).then(element => {
+      console.log(element)
+    })*/
+    //fakedata.columns=["id","name","0","100","200","300","400","500","600","700","800","900","1000","1100","1200","1300","1400","1500","1600","1700","1800","1900","2000"]
+    fakedata.forEach(element => element.meanMen = (element[birthDate][0]/(element[birthDate][0]+element[birthDate][1]))*100)
+    console.log(fakedata)
     csvjson.columns=["id","name","region","pop","gdp","gdppc","year"];
     /*d3.csv(
       data,
@@ -67,7 +76,7 @@ const App = () => {
     ).then((coucou) => {areArraysEqual(coucou,csvjson) coucou.forEach(element => console.log(element["<!DOCTYPE html>"]))})*/
 
     d3.json(jsn).then((json) => {
-        const chart = drawChart(json,csvjson);
+        const chart = drawChart(json,fakedata);
         if(svg.current.firstChild == null)
           svg.current.appendChild(chart)
         else{
@@ -79,35 +88,34 @@ const App = () => {
   },[expression])
 
   return (
-    <><div> 
-      <form onSubmit={handleFilter}>
-        <input
-          type='text'
-          placeholder='$[city="Chicago"]'
-          onChange={handleChange} />
-        <button type='submit'>Filter</button>
-      </form>
-      <table>
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>Age</th>
-            <th>City</th>
-          </tr>
-        </thead>
-        <tbody>
-          {dataTest.map((item, index) => (
-            <tr key={index}>
-              <td>{item.name}</td>
-              <td>{item.age}</td>
-              <td>{item.city}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+    <>
+    <div>
+    <Form>
+      <Form.Group>
+        <Form.Label>Personalités nées avant : {birthDate}</Form.Label>
+        <FormControl
+          type="range"
+          value={birthDate}
+          min={0}
+          max={2000}
+          step={100}
+          onChange={(e) => setBirthDate(e.target.value)}
+        />
+      </Form.Group>
+    </Form>
+    <Form>
+      <Form.Group>
+        <Form.Label>Select</Form.Label>
+        <Form.Control as="select" value={country} onChange={handleChangeOption}>
+          <option>English</option>
+          <option>French</option>
+          <option>Spanish</option>
+        </Form.Control>
+      </Form.Group>
+    </Form>
+    {country}
     </div>
     <div ref={svg}></div>
-      {/*<ReactSVG src={test} />*/}
     </>
   );
 };
