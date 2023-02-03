@@ -146,7 +146,7 @@ const App = () => {
     </Form>
     <Form>
       <Form.Group>
-        <Form.Label>Personalités nées avant : {birthDate}</Form.Label>
+        <Form.Label>Personalités nées avant : </Form.Label> 
         <FormControl
           type="range"
           value={birthDate}
@@ -157,7 +157,17 @@ const App = () => {
         />
       </Form.Group>
     </Form>
-    <Form>
+    <h1>{extra ? "Extrapolation of gender coverage of personalities born in "+birthDate+" (in "+country+" Wikipedia)" :"Gender coverage of personalities born in "+birthDate+" (in "+country+" Wikipedia)"}</h1>
+    <div ref={svg}></div>
+    </>
+  );
+};
+
+export default App;
+
+
+/*
+ <Form>
       <Form.Group>
         <Form.Label>Select</Form.Label>
         <Form.Control as="select" value={country} onChange={handleChangeOption}>
@@ -166,11 +176,4 @@ const App = () => {
           <option>Spanish</option>
         </Form.Control>
       </Form.Group>
-    </Form>
-    {country}
-    <div ref={svg}></div>
-    </>
-  );
-};
-
-export default App;
+    </Form>*/
