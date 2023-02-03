@@ -45,15 +45,31 @@ const App = () => {
             fill: {
               type: "choro",
               values: "meanMen",
-              nbreaks: 10,
+              nbreaks: 5,
               method: "geometric", 
-              colors: "Spectral",
-              leg_round: -2,
-              leg_title: `men in %`,
+              colors: "YlGnBu",
+              leg_round: 0,
+              leg_title: `Men coverage (in %)`,
               leg_x: 100,
               leg_y: 200
             },
-            tooltip: ["$name" /*(d) => d.properties[birthDate][0]*/]
+            tooltip: {
+              fields: [
+                "$name",
+                " ",
+                (d) => "Men coverage : " + d.properties.meanMen.toFixed(2) + "%",
+                (d) => "Women coverage : " + (100 - d.properties.meanMen).toFixed(2) + "%",
+                " ",
+                "------------- Details -------------",
+                " ",
+                (d) => "Men : " + d.properties[birthDate][0], 
+                (d) => "Women : " + d.properties[birthDate][1]
+              ],
+              fill: "#add8f7",
+              fontSize:[20,15,15,15,15,15,15,15,15],
+              col: ["black", "black", "#213f77", "#be34b6","black","black","black","#213f77", "#be34b6"],
+              fillOpacity: 0.7
+          }
           },
           { type: "graticule" },
           { type: "outline" }
@@ -68,8 +84,7 @@ const App = () => {
     })*/
     //fakedata.columns=["id","name","0","100","200","300","400","500","600","700","800","900","1000","1100","1200","1300","1400","1500","1600","1700","1800","1900","2000"]
     fakedata.forEach(element => element.meanMen = (element[birthDate][0]/(element[birthDate][0]+element[birthDate][1]))*100)
-    console.log(fakedata)
-    csvjson.columns=["id","name","region","pop","gdp","gdppc","year"];
+    //csvjson.columns=["id","name","region","pop","gdp","gdppc","year"];
     /*d3.csv(
       data,
       d3.autoType
@@ -85,7 +100,7 @@ const App = () => {
         }
   })
   
-  },[expression])
+  },[birthDate])
 
   return (
     <>
