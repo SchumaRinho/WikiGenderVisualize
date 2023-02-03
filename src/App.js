@@ -157,7 +157,7 @@ const App = () => {
         />
       </Form.Group>
     </Form>
-    <h1>{extra ? "Extrapolation of gender coverage of personalities born in "+birthDate+" (in "+country+" Wikipedia)" :"Gender coverage of personalities born in "+birthDate+" (in "+country+" Wikipedia)"}</h1>
+    <h1>{extra ? "Extrapolation of personalities's gender coverage born in "+birthDate+" (in "+country+" Wikipedia)" :"Personalities's gender coverage born in "+birthDate+" (in "+country+" Wikipedia)"}</h1>
     <div ref={svg}></div>
     </>
   );
