@@ -12,9 +12,11 @@ import fakedata from "./dataset/fakedata.json"
 
 
 const App = () => {
-  const [expression, setExpression] = useState('$[city="Chicago"]');
+  //const [expression, setExpression] = useState('$[city="Chicago"]');
   const [birthDate, setBirthDate] = useState(2000);
   const [country, setCountry] = useState('English');
+  const [extra, setExtra] = useState(false);
+
 
   const svg = useRef(null);
   var s = new XMLSerializer();
@@ -28,10 +30,6 @@ const App = () => {
     jsonata(expression).evaluate(dataTest).then(element => {
       setData([element])
     })
-  };
-
-  const handleChange = e => {
-    setExpression(e.target.value);
   };*/
 
   const drawChart = (world,data) => {
@@ -57,13 +55,13 @@ const App = () => {
               fields: [
                 "$name",
                 " ",
-                (d) => "Men coverage : " + d.properties.meanMen.toFixed(2) + "%",
-                (d) => "Women coverage : " + (100 - d.properties.meanMen).toFixed(2) + "%",
+                (d) => {return(d.properties.meanMen ==="" ? "No data collected for this country" : "Men coverage : " + d.properties.meanMen.toFixed(2) + "%")},
+                (d) => {return(d.properties.meanMen ==="" ? " " : "Women coverage : " + (100 - d.properties.meanMen).toFixed(2) + "%")},
                 " ",
-                "------------- Details -------------",
+                (d) => {return(d.properties.meanMen ==="" ? " " : "------------- Details -------------")},
                 " ",
-                (d) => "Men : " + d.properties[birthDate][0], 
-                (d) => "Women : " + d.properties[birthDate][1]
+                (d) => {return(d.properties.meanMen ==="" ? " " : "Men : " + d.properties[birthDate][0])}, 
+                (d) => {return(d.properties.meanMen ==="" ? " " : "Women : " + d.properties[birthDate][1])}
               ],
               fill: "#add8f7",
               fontSize:[20,15,15,15,15,15,15,15,15],
@@ -78,20 +76,53 @@ const App = () => {
     )
   }
 
-  useEffect(() => {
-    /*jsonata("[*].id").evaluate(csvjson).then(element => {
-      console.log(element)
-    })*/
-    //fakedata.columns=["id","name","0","100","200","300","400","500","600","700","800","900","1000","1100","1200","1300","1400","1500","1600","1700","1800","1900","2000"]
-    fakedata.forEach(element => element.meanMen = (element[birthDate][0]/(element[birthDate][0]+element[birthDate][1]))*100)
-    //csvjson.columns=["id","name","region","pop","gdp","gdppc","year"];
-    /*d3.csv(
-      data,
-      d3.autoType
-    ).then((coucou) => {areArraysEqual(coucou,csvjson) coucou.forEach(element => console.log(element["<!DOCTYPE html>"]))})*/
+  const drawChartExtra = (world,data) => {
+    return(
+      bertin.draw({
+        params: { projection: geoEckert3() },
+        layers: [
+          {
+            type: "layer",
+            geojson: bertin.merge(world, "ISO3", data, "id"),
+            fill: {
+              type: "choro",
+              values: "pop",
+              nbreaks: 10,
+              method: "geometric", 
+              colors: "Spectral",
+              leg_round: 0,
+              leg_title: `men in %`,
+              leg_x: 100,
+              leg_y: 200
+            },
+            tooltip: ["$name","$pop"]
+          },
+          { type: "graticule" },
+          { type: "outline" }
+        ]
+      })
+    )
+  }
 
+  useEffect(() => {
+    let dataViz;
+    if(!extra){
+      fakedata.forEach(element => {
+        if(element[birthDate][0] == 0)
+          element.meanMen = ""
+        else
+          element.meanMen = (element[birthDate][0]/(element[birthDate][0]+element[birthDate][1]))*100
+      })
+      dataViz = fakedata
+    }
+    else
+      dataViz = csvjson
     d3.json(jsn).then((json) => {
-        const chart = drawChart(json,fakedata);
+        let chart
+        if(!extra)
+          chart = drawChart(json,dataViz);
+        else
+          chart = drawChartExtra(json,dataViz)
         if(svg.current.firstChild == null)
           svg.current.appendChild(chart)
         else{
@@ -100,11 +131,19 @@ const App = () => {
         }
   })
   
-  },[birthDate])
+  },[birthDate,extra])
 
   return (
     <>
-    <div>
+    <Form>
+      <Form.Check 
+        type="switch"
+        id="custom-switch"
+        label="Extrapolation mod"
+        checked={extra}
+        onChange={() => setExtra(!extra)}
+      />
+    </Form>
     <Form>
       <Form.Group>
         <Form.Label>Personalités nées avant : {birthDate}</Form.Label>
@@ -129,7 +168,6 @@ const App = () => {
       </Form.Group>
     </Form>
     {country}
-    </div>
     <div ref={svg}></div>
     </>
   );
