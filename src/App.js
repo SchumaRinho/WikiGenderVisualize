@@ -9,8 +9,6 @@ import jsn from "./dataset/world.geojson.txt"
 import csvjson from "./dataset/csvjson.json"
 import fakedata from "./dataset/fakedata.json"
 
-
-
 const App = () => {
   //const [expression, setExpression] = useState('$[city="Chicago"]');
   const [birthDate, setBirthDate] = useState(2000);
@@ -20,11 +18,10 @@ const App = () => {
 
 
   const svg = useRef(null);
-  var s = new XMLSerializer();
 
-  const handleChangeOption = (event) => {
+  /*const handleChangeOption = (event) => {
     setCountry(event.target.value);
-  };
+  };*/
 
   /*const handleFilter = e => {
     e.preventDefault();
@@ -117,7 +114,7 @@ const App = () => {
     let dataViz;
     if(!extra){
       fakedata.forEach(element => {
-        if(element[birthDate][ + reverseViz] == 0)
+        if(element[birthDate][ + reverseViz] === 0)
           element.meanGender = ""
         else
           element.meanGender = (element[birthDate][ + reverseViz]/(element[birthDate][ + reverseViz]+element[birthDate][ + !reverseViz]))*100
