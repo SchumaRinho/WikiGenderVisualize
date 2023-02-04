@@ -16,6 +16,7 @@ const App = () => {
   const [birthDate, setBirthDate] = useState(2000);
   const [country, setCountry] = useState('English');
   const [extra, setExtra] = useState(false);
+  const [reverseViz, setReverseViz] = useState(false);
 
 
   const svg = useRef(null);
@@ -33,6 +34,14 @@ const App = () => {
   };*/
 
   const drawChart = (world,data) => {
+    let menCoverage = 0
+    let womenCoverage = 100
+    let legend = "Men coverage (in %)"
+    if(reverseViz){
+      legend = "Women coverage (in %)"
+      menCoverage = 100
+      womenCoverage = 0
+    }
     return(
       bertin.draw({
         params: { projection: geoEckert3() },
@@ -42,12 +51,12 @@ const App = () => {
             geojson: bertin.merge(world, "ISO3", data, "id"),
             fill: {
               type: "choro",
-              values: "meanMen",
+              values: "meanGender",
               nbreaks: 5,
               method: "geometric", 
               colors: "YlGnBu",
               leg_round: 0,
-              leg_title: `Men coverage (in %)`,
+              leg_title: legend,
               leg_x: 100,
               leg_y: 200
             },
@@ -55,13 +64,13 @@ const App = () => {
               fields: [
                 "$name",
                 " ",
-                (d) => {return(d.properties.meanMen ==="" ? "No data collected for this country" : "Men coverage : " + d.properties.meanMen.toFixed(2) + "%")},
-                (d) => {return(d.properties.meanMen ==="" ? " " : "Women coverage : " + (100 - d.properties.meanMen).toFixed(2) + "%")},
+                (d) => {return(d.properties.meanGender ==="" ? "No data collected for this country" : "Men coverage : " + Math.abs(menCoverage - d.properties.meanGender).toFixed(2) + "%")},
+                (d) => {return(d.properties.meanGender ==="" ? " " : "Women coverage : " + (Math.abs(womenCoverage - d.properties.meanGender).toFixed(2) + "%"))},
                 " ",
-                (d) => {return(d.properties.meanMen ==="" ? " " : "------------- Details -------------")},
+                (d) => {return(d.properties.meanGender ==="" ? " " : "------------- Details -------------")},
                 " ",
-                (d) => {return(d.properties.meanMen ==="" ? " " : "Men : " + d.properties[birthDate][0])}, 
-                (d) => {return(d.properties.meanMen ==="" ? " " : "Women : " + d.properties[birthDate][1])}
+                (d) => {return(d.properties.meanGender ==="" ? " " : "Men : " + d.properties[birthDate][0])}, 
+                (d) => {return(d.properties.meanGender ==="" ? " " : "Women : " + d.properties[birthDate][1])}
               ],
               fill: "#add8f7",
               fontSize:[20,15,15,15,15,15,15,15,15],
@@ -91,7 +100,7 @@ const App = () => {
               method: "geometric", 
               colors: "Spectral",
               leg_round: 0,
-              leg_title: `men in %`,
+              leg_title: `Men coverage (in %)`,
               leg_x: 100,
               leg_y: 200
             },
@@ -108,10 +117,10 @@ const App = () => {
     let dataViz;
     if(!extra){
       fakedata.forEach(element => {
-        if(element[birthDate][0] == 0)
-          element.meanMen = ""
+        if(element[birthDate][ + reverseViz] == 0)
+          element.meanGender = ""
         else
-          element.meanMen = (element[birthDate][0]/(element[birthDate][0]+element[birthDate][1]))*100
+          element.meanGender = (element[birthDate][ + reverseViz]/(element[birthDate][ + reverseViz]+element[birthDate][ + !reverseViz]))*100
       })
       dataViz = fakedata
     }
@@ -119,8 +128,9 @@ const App = () => {
       dataViz = csvjson
     d3.json(jsn).then((json) => {
         let chart
-        if(!extra)
+        if(!extra){
           chart = drawChart(json,dataViz);
+        }
         else
           chart = drawChartExtra(json,dataViz)
         if(svg.current.firstChild == null)
@@ -131,7 +141,7 @@ const App = () => {
         }
   })
   
-  },[birthDate,extra])
+  },[birthDate,extra,reverseViz])
 
   return (
     <>
@@ -140,8 +150,23 @@ const App = () => {
         type="switch"
         id="custom-switch"
         label="Extrapolation mod"
-        checked={extra}
         onChange={() => setExtra(!extra)}
+      />
+    </Form>
+    <Form>
+      <Form.Check 
+        type="switch"
+        id="custom-switch"
+        label="Men vizualisation"
+        checked={reverseViz ? false : true}
+        onChange={() => setReverseViz(!reverseViz)}
+      />
+      <Form.Check 
+        type="switch"
+        id="custom-switch"
+        label="Women vizualisation mod"
+        checked={reverseViz ? true : false}
+        onChange={() => setReverseViz(!reverseViz)}
       />
     </Form>
     <Form>
@@ -150,14 +175,16 @@ const App = () => {
         <FormControl
           type="range"
           value={birthDate}
-          min={0}
+          min={-100}
           max={2000}
           step={100}
           onChange={(e) => setBirthDate(e.target.value)}
         />
       </Form.Group>
     </Form>
-    <h1>{extra ? "Extrapolation of personalities's gender coverage born in "+birthDate+" (in "+country+" Wikipedia)" :"Personalities's gender coverage born in "+birthDate+" (in "+country+" Wikipedia)"}</h1>
+    {birthDate < 0 ? 
+      <h1>{extra ? "Extrapolation of personalities's gender coverage born B.C (in "+country+" Wikipedia)" : "Personalities's gender coverage born B.C (in "+country+" Wikipedia)"}</h1>
+       : <h1>{extra ? "Extrapolation of personalities's gender coverage born in "+birthDate+" (in "+country+" Wikipedia)" :"Personalities's gender coverage born in "+birthDate+" (in "+country+" Wikipedia)"}</h1>}
     <div ref={svg}></div>
     </>
   );
