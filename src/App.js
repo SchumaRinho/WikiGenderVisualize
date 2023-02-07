@@ -3,11 +3,16 @@ import React, {useEffect, useRef, useState } from 'react';
 import * as d3 from "d3";
 import * as bertin from "bertin";
 import {geoEckert3} from "d3-geo-projection";
-import { Form, FormControl} from 'react-bootstrap';
+import { Form, FormControl, OverlayTrigger, Tooltip} from 'react-bootstrap';
+import RangeSlider from 'react-bootstrap-range-slider';
 
 import jsn from "./dataset/world.geojson.txt"
 import csvjson from "./dataset/csvjson.json"
 import fakedata from "./dataset/fakedata.json"
+import male from "./image/Homme.png"
+import female from "./image/femme.png"
+
+import {ToggleButtonGroup,ToggleButton} from 'react-bootstrap';
 
 
 
@@ -16,6 +21,7 @@ const App = () => {
   const [birthDate, setBirthDate] = useState(2000);
   const [country, setCountry] = useState('English');
   const [extra, setExtra] = useState(false);
+  const [ value, setValue ] = useState(0); 
 
 
   const svg = useRef(null);
@@ -55,13 +61,31 @@ const App = () => {
               fields: [
                 "$name",
                 " ",
-                (d) => {return(d.properties.meanMen ==="" ? "No data collected for this country" : "Men coverage : " + d.properties.meanMen.toFixed(2) + "%")},
+                (d) => {
+                  if (d.properties.meanMen && typeof d.properties.meanMen === 'number') {
+                    return "Men coverage: " + d.properties.meanMen.toFixed(2) + "%";
+                  } else {
+                    return "No data collected for this country";
+                  }
+                },
                 (d) => {return(d.properties.meanMen ==="" ? " " : "Women coverage : " + (100 - d.properties.meanMen).toFixed(2) + "%")},
                 " ",
                 (d) => {return(d.properties.meanMen ==="" ? " " : "------------- Details -------------")},
                 " ",
-                (d) => {return(d.properties.meanMen ==="" ? " " : "Men : " + d.properties[birthDate][0])}, 
-                (d) => {return(d.properties.meanMen ==="" ? " " : "Women : " + d.properties[birthDate][1])}
+                (d) => {
+                  if (d.properties.meanMen === "" || !d.properties.birthDate) {
+                    return "No data available for this country";
+                  } else {
+                    return "Men: " + d.properties.birthDate[0];
+                  }
+                },
+                (d) => {
+                  if (d.properties.meanMen === "" || !d.properties.birthDate) {
+                    return "No data available for this country";
+                  } else {
+                    return "Women: " + d.properties.birthDate[1];
+                  }
+                }
               ],
               fill: "#add8f7",
               fontSize:[20,15,15,15,15,15,15,15,15],
@@ -135,30 +159,41 @@ const App = () => {
 
   return (
     <>
-    <Form>
-      <Form.Check 
-        type="switch"
-        id="custom-switch"
-        label="Extrapolation mod"
-        checked={extra}
-        onChange={() => setExtra(!extra)}
-      />
-    </Form>
-    <Form>
-      <Form.Group>
-        <Form.Label>Personalités nées avant : </Form.Label> 
-        <FormControl
-          type="range"
-          value={birthDate}
-          min={0}
-          max={2000}
-          step={100}
-          onChange={(e) => setBirthDate(e.target.value)}
-        />
-      </Form.Group>
-    </Form>
-    <h1>{extra ? "Extrapolation of gender coverage of personalities born in "+birthDate+" (in "+country+" Wikipedia)" :"Gender coverage of personalities born in "+birthDate+" (in "+country+" Wikipedia)"}</h1>
-    <div ref={svg}></div>
+    <div >  
+      <h1 style={{textAlign:"center",marginTop:40}}>{extra ? "Extrapolation of gender coverage of personalities born before "+birthDate+" (in "+country+" Wikipedia)" :"Gender coverage of personalities born before "+birthDate+" (in "+country+" Wikipedia)"}</h1>
+      <div style={{display: 'flex', justifyContent: 'space-between',marginTop:40}}>
+        <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center'}}>
+          <button style={{margin:25,padding:10,marginLeft:60,marginTop:100}} onClick={() => setExtra(!extra)}>
+            <img style={{width: 100}} src={male} alt="Symbole Masculin" />
+          </button>
+          <button style={{margin:25,padding:10,marginLeft:60}} onClick={() => setExtra(!extra)}>
+            <img style={{width: 100}} src={female} alt="Symbole féminin" />
+          </button>
+        </div>
+        {true && (
+          <div style={{width:"83%"}} ref={svg}></div>
+        )}
+      </div>
+      
+      <Form style={{display: 'flex', justifyContent: 'center'}}>
+        <Form.Label>Personalités nées avant : {birthDate}</Form.Label> 
+      </Form>
+      <Form style={{display: 'flex', justifyContent: 'center'}}>
+        <Form.Range style={{width:700}} value={birthDate} min={0} max={2000} step={100} tooltip="on" onChange={(e) => setBirthDate(e.target.value)} title={birthDate}/>
+      </Form>
+
+      <ToggleButtonGroup style={{display: 'flex', justifyContent: 'center', marginTop:25}} type="radio" name="options" defaultValue={1}>
+        <ToggleButton style={{marginRight:25}} variant="primary" id="tbg-radio-1" value={1} onChange={() => setExtra(!extra)}>
+          Vue Classique
+        </ToggleButton>
+        <ToggleButton style={{marginRight:25}} id="tbg-radio-2" value={2} checked={extra} onChange={() => setExtra(!extra)}>
+          Vue Extrapolé
+        </ToggleButton>
+        <ToggleButton style={{marginRight:25}} id="tbg-radio-3" value={3} onChange={() => setExtra(!extra)}x>
+          ????
+        </ToggleButton>
+      </ToggleButtonGroup>
+    </div>  
     </>
   );
 };
