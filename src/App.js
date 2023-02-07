@@ -159,7 +159,6 @@ const App = () => {
 
   return (
     <>
-<<<<<<< HEAD
     <div >  
       <h1 style={{textAlign:"center",marginTop:40}}>{extra ? "Extrapolation of gender coverage of personalities born before "+birthDate+" (in "+country+" Wikipedia)" :"Gender coverage of personalities born before "+birthDate+" (in "+country+" Wikipedia)"}</h1>
       <div style={{display: 'flex', justifyContent: 'space-between',marginTop:40}}>
@@ -195,32 +194,6 @@ const App = () => {
         </ToggleButton>
       </ToggleButtonGroup>
     </div>  
-=======
-    <Form>
-      <Form.Check 
-        type="switch"
-        id="custom-switch"
-        label="Extrapolation mod"
-        checked={extra}
-        onChange={() => setExtra(!extra)}
-      />
-    </Form>
-    <Form>
-      <Form.Group>
-        <Form.Label>Personalités nées avant : </Form.Label> 
-        <FormControl
-          type="range"
-          value={birthDate}
-          min={0}
-          max={2000}
-          step={100}
-          onChange={(e) => setBirthDate(e.target.value)}
-        />
-      </Form.Group>
-    </Form>
-    <h1>{extra ? "Extrapolation of personalities's gender coverage born in "+birthDate+" (in "+country+" Wikipedia)" :"Personalities's gender coverage born in "+birthDate+" (in "+country+" Wikipedia)"}</h1>
-    <div ref={svg}></div>
->>>>>>> 79fb71f808fbda1ae3d14518b9e352a30b36fcd0
     </>
   );
 };
