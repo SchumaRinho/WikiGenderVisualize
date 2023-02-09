@@ -2,8 +2,12 @@ import React, { useEffect, useRef, useState } from 'react';
 //import jsonata from 'jsonata';
 import * as d3 from "d3";
 import * as bertin from "bertin";
-import { geoEckert3 } from "d3-geo-projection";
-import { Form } from 'react-bootstrap';
+import {geoEckert3} from "d3-geo-projection";
+import './App.css';
+
+import { Box, Grommet, RangeInput, RadioButtonGroup } from 'grommet';
+import { deepMerge } from 'grommet/utils';
+import { grommet } from 'grommet/themes';
 
 import jsn from "./dataset/world.geojson.txt"
 import extrajson from "./dataset/csvjson.json"
@@ -11,20 +15,19 @@ import realjson from "./dataset/fakedata.json"
 import male from "./image/Homme.png"
 import female from "./image/femme.png"
 
-import {ToggleButtonGroup,ToggleButton} from 'react-bootstrap';
-
 
 
 const App = () => {
-  //const [expression, setExpression] = useState('$[city="Chicago"]');
   const [birthDate, setBirthDate] = useState(2000);
   const [country, setCountry] = useState('English');
-  //const [extra, setExtra] = useState(false);
   const [reverseViz, setReverseViz] = useState(false);
-  //const [value, setValue] = useState(0); 
-
-
+  //const [value, setValue ] = useState("Vue Classique"); 
+  //const [extra, setExtra] = useState(false);
   const svg = useRef(null);
+
+  /*const handleChangeOption = (event) => {
+    setCountry(event.target.value);
+  };*/
 
   const drawChart = (world,data) => {
     let menCoverage = 0
@@ -37,7 +40,7 @@ const App = () => {
     }
     return(
       bertin.draw({
-        params: { projection: geoEckert3() },
+        params: { projection: geoEckert3(), background:"#ADD8F7"},
         layers: [
           {
             type: "layer",
@@ -77,8 +80,6 @@ const App = () => {
               fillOpacity: 0.7
           }
           },
-          { type: "graticule" },
-          { type: "outline" }
         ]
       })
     )
@@ -87,7 +88,8 @@ const App = () => {
   /*const drawChartExtra = (world,data) => {
     return(
       bertin.draw({
-        params: { projection: geoEckert3() },
+        
+        params: { projection: geoEckert3(), background:"#ADD8F7" },
         layers: [
           {
             type: "layer",
@@ -105,8 +107,6 @@ const App = () => {
             },
             tooltip: ["$name","$pop"]
           },
-          { type: "graticule" },
-          { type: "outline" }
         ]
       })
     )
@@ -141,54 +141,62 @@ const App = () => {
   },[birthDate,/*extra,*/reverseViz])
 
   return (
-    <>
-    <div>
-      <h1 style={{textAlign:"center",marginTop:40}}>{birthDate < 0 ? "Personalities's gender coverage born B.C (in "+country+" Wikipedia)" : "Personalities's gender coverage born in "+birthDate+" (in "+country+" Wikipedia)"}</h1>
-      <div style={{display: 'flex', justifyContent: 'space-between',marginTop:40}}>
-        <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center'}}>
-          <button style={{margin:25,padding:10,marginLeft:60,marginTop:100}} onClick={() => setReverseViz(false)}>
-            <img style={{width: 100}} src={male} alt="Symbole Masculin" />
-          </button>
-          <button style={{margin:25,padding:10,marginLeft:60}} onClick={() => setReverseViz(true)}>
-            <img style={{width: 100}} src={female} alt="Symbole féminin" />
-          </button>
-        </div>
-          <div style={{width:"83%"}} ref={svg}></div>
-      </div>
-      
-      <Form style={{display: 'flex', justifyContent: 'center'}}>
-        <Form.Label>Personalités nées avant : {birthDate}</Form.Label> 
-      </Form>
-      <Form style={{display: 'flex', justifyContent: 'center'}}>
-        <Form.Range style={{width:700}} value={birthDate} min={-100} max={2000} step={100} tooltip="on" onChange={(e) => setBirthDate(e.target.value)} title={birthDate}/>
-      </Form>
-
-      
-    </div>  
-    </>
+    <Grommet theme={customTheme}>
+      <Box fill pad="large">
+      <h1>{birthDate < 0 ? "Personalities's gender coverage born B.C (in "+country+" Wikipedia)" : "Personalities's gender coverage born in "+birthDate+" (in "+country+" Wikipedia)"}</h1>
+          <div class="divContainer">
+            <div class="divLeft" style={{flex:0.1}}>
+              <button style={{marginTop:100}} onClick={() => setReverseViz(false)}>
+                <img src={male} alt="Symbole Masculin" />
+              </button>
+              <button onClick={() => setReverseViz(true)}>
+                <img src={female} alt="Symbole féminin" />
+              </button>
+            </div>
+            {true && (
+              <div class="divRight" ref={svg}></div>
+            )}
+          </div>
+          <div class="divContainer">
+            <div class="divLeft" style={{flex:0.13}}>
+              <p>  </p>
+            </div>
+            <div class="divRight" style={{flexDirection:"column"}}>
+              <div class="divUnderMap">
+                <p>Personalities born before : {birthDate}</p> 
+              </div>
+              <div class="divUnderMap">
+                <RangeInput color="#C48E76" style={{width:700}} value={birthDate} min={0} max={2000} step={100} onChange={(e) => setBirthDate(e.target.value)}/>
+              </div>
+            </div>
+          </div>    
+      </Box> 
+    </Grommet>
   );
 };
 
+const customTheme= deepMerge(grommet,{
+  global:{
+    font:{
+      size:'16px',
+    },
+    colors:{
+      brand:"#F8AE70",
+      background:"#ADD8F7",
+    }
+  }
+})
+
 export default App;
-
-
 /*
+
+      <div class="divUnderMap">
+        <RadioButtonGroup name="radio-group" gap="large" direction="row" options={['Vue Classique', 'Vue Extrapolé', '???']} value={value} onChange={event => setValue(event.target.value)}/>
+      </div>
 
       {birthDate < 0 ? 
       <h1 style={{textAlign:"center",marginTop:40}}>{extra ? "Extrapolation of personalities's gender coverage born B.C (in "+country+" Wikipedia)" : "Personalities's gender coverage born B.C (in "+country+" Wikipedia)"}</h1>
        : <h1 style={{textAlign:"center",marginTop:40}}>{extra ? "Extrapolation of personalities's gender coverage born in "+birthDate+" (in "+country+" Wikipedia)" :"Personalities's gender coverage born in "+birthDate+" (in "+country+" Wikipedia)"}</h1>}
-
-      <ToggleButtonGroup style={{display: 'flex', justifyContent: 'center', marginTop:25}} type="radio" name="options" defaultValue={1}>
-        <ToggleButton style={{marginRight:25}} variant="primary" id="tbg-radio-1" value={1} onChange={() => setExtra(!extra)}>
-          Vue Classique
-        </ToggleButton>
-        <ToggleButton style={{marginRight:25}} id="tbg-radio-2" value={2} checked={extra} onChange={() => setExtra(!extra)}>
-          Vue Extrapolé
-        </ToggleButton>
-        <ToggleButton style={{marginRight:25}} id="tbg-radio-3" value={3} onChange={() => setExtra(!extra)}x>
-          ????
-        </ToggleButton>
-      </ToggleButtonGroup>
 
  <Form>
       <Form.Group>
