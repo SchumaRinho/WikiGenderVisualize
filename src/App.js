@@ -3,11 +3,18 @@ import React, {useEffect, useRef, useState } from 'react';
 import * as d3 from "d3";
 import * as bertin from "bertin";
 import {geoEckert3} from "d3-geo-projection";
-import { Form, FormControl} from 'react-bootstrap';
+import { Form, FormControl, OverlayTrigger, Tooltip} from 'react-bootstrap';
+import RangeSlider from 'react-bootstrap-range-slider';
 
 import jsn from "./dataset/world.geojson.txt"
 import extrajson from "./dataset/csvjson.json"
 import realjson from "./dataset/fakedata.json"
+import male from "./image/Homme.png"
+import female from "./image/femme.png"
+
+import {ToggleButtonGroup,ToggleButton} from 'react-bootstrap';
+
+
 
 const App = () => {
   //const [expression, setExpression] = useState('$[city="Chicago"]');
@@ -15,20 +22,10 @@ const App = () => {
   const [country, setCountry] = useState('English');
   const [extra, setExtra] = useState(false);
   const [reverseViz, setReverseViz] = useState(false);
+  const [value, setValue] = useState(0); 
 
 
   const svg = useRef(null);
-
-  /*const handleChangeOption = (event) => {
-    setCountry(event.target.value);
-  };*/
-
-  /*const handleFilter = e => {
-    e.preventDefault();
-    jsonata(expression).evaluate(dataTest).then(element => {
-      setData([element])
-    })
-  };*/
 
   const drawChart = (world,data) => {
     let menCoverage = 0
@@ -61,8 +58,14 @@ const App = () => {
               fields: [
                 "$name",
                 " ",
-                (d) => {return(d.properties.meanGender ==="" ? "No data collected for this country" : "Men coverage : " + Math.abs(menCoverage - d.properties.meanGender).toFixed(2) + "%")},
-                (d) => {return(d.properties.meanGender ==="" ? " " : "Women coverage : " + (Math.abs(womenCoverage - d.properties.meanGender).toFixed(2) + "%"))},
+                (d) => {
+                  if (d.properties.meanMen && typeof d.properties.meanMen === 'number') {
+                    return "Men coverage: " + d.properties.meanMen.toFixed(2) + "%";
+                  } else {
+                    return "No data collected for this country";
+                  }
+                },
+                (d) => {return(d.properties.meanMen ==="" ? " " : "Women coverage : " + (100 - d.properties.meanMen).toFixed(2) + "%")},
                 " ",
                 (d) => {return(d.properties.meanGender ==="" ? " " : "------------- Details -------------")},
                 " ",
@@ -142,47 +145,43 @@ const App = () => {
 
   return (
     <>
-    <Form>
-      <Form.Check 
-        type="switch"
-        id="custom-switch"
-        label="Extrapolation mod"
-        onChange={() => setExtra(!extra)}
-      />
-    </Form>
-    <Form>
-      <Form.Check 
-        type="switch"
-        id="custom-switch"
-        label="Men vizualisation mod"
-        checked={reverseViz ? false : true}
-        onChange={() => setReverseViz(false)}
-      />
-      <Form.Check 
-        type="switch"
-        id="custom-switch"
-        label="Women vizualisation mod"
-        checked={reverseViz ? true : false}
-        onChange={() => setReverseViz(true)}
-      />
-    </Form>
-    <Form>
-      <Form.Group>
-        <Form.Label>Personalités nées avant : </Form.Label> 
-        <FormControl
-          type="range"
-          value={birthDate}
-          min={-100}
-          max={2000}
-          step={100}
-          onChange={(e) => setBirthDate(e.target.value)}
-        />
-      </Form.Group>
-    </Form>
-    {birthDate < 0 ? 
-      <h1>{extra ? "Extrapolation of personalities's gender coverage born B.C (in "+country+" Wikipedia)" : "Personalities's gender coverage born B.C (in "+country+" Wikipedia)"}</h1>
-       : <h1>{extra ? "Extrapolation of personalities's gender coverage born in "+birthDate+" (in "+country+" Wikipedia)" :"Personalities's gender coverage born in "+birthDate+" (in "+country+" Wikipedia)"}</h1>}
-    <div ref={svg}></div>
+    <div>
+      {birthDate < 0 ? 
+      <h1 style={{textAlign:"center",marginTop:40}}>{extra ? "Extrapolation of personalities's gender coverage born B.C (in "+country+" Wikipedia)" : "Personalities's gender coverage born B.C (in "+country+" Wikipedia)"}</h1>
+       : <h1 style={{textAlign:"center",marginTop:40}}>{extra ? "Extrapolation of personalities's gender coverage born in "+birthDate+" (in "+country+" Wikipedia)" :"Personalities's gender coverage born in "+birthDate+" (in "+country+" Wikipedia)"}</h1>}  
+      <div style={{display: 'flex', justifyContent: 'space-between',marginTop:40}}>
+        <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center'}}>
+          <button style={{margin:25,padding:10,marginLeft:60,marginTop:100}} onClick={() => setReverseViz(false)}>
+            <img style={{width: 100}} src={male} alt="Symbole Masculin" />
+          </button>
+          <button style={{margin:25,padding:10,marginLeft:60}} onClick={() => setReverseViz(true)}>
+            <img style={{width: 100}} src={female} alt="Symbole féminin" />
+          </button>
+        </div>
+        {true && (
+          <div style={{width:"83%"}} ref={svg}></div>
+        )}
+      </div>
+      
+      <Form style={{display: 'flex', justifyContent: 'center'}}>
+        <Form.Label>Personalités nées avant : {birthDate}</Form.Label> 
+      </Form>
+      <Form style={{display: 'flex', justifyContent: 'center'}}>
+        <Form.Range style={{width:700}} value={birthDate} min={-100} max={2000} step={100} tooltip="on" onChange={(e) => setBirthDate(e.target.value)} title={birthDate}/>
+      </Form>
+
+      <ToggleButtonGroup style={{display: 'flex', justifyContent: 'center', marginTop:25}} type="radio" name="options" defaultValue={1}>
+        <ToggleButton style={{marginRight:25}} variant="primary" id="tbg-radio-1" value={1} onChange={() => setExtra(!extra)}>
+          Vue Classique
+        </ToggleButton>
+        <ToggleButton style={{marginRight:25}} id="tbg-radio-2" value={2} checked={extra} onChange={() => setExtra(!extra)}>
+          Vue Extrapolé
+        </ToggleButton>
+        <ToggleButton style={{marginRight:25}} id="tbg-radio-3" value={3} onChange={() => setExtra(!extra)}x>
+          ????
+        </ToggleButton>
+      </ToggleButtonGroup>
+    </div>  
     </>
   );
 };
@@ -191,6 +190,8 @@ export default App;
 
 
 /*
+      <h1 style={{textAlign:"center",marginTop:40}}>{extra ? "Extrapolation of gender coverage of personalities born before "+birthDate+" (in "+country+" Wikipedia)" :"Gender coverage of personalities born before "+birthDate+" (in "+country+" Wikipedia)"}</h1>
+
  <Form>
       <Form.Group>
         <Form.Label>Select</Form.Label>
