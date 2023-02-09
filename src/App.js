@@ -6,8 +6,8 @@ import {geoEckert3} from "d3-geo-projection";
 import { Form, FormControl} from 'react-bootstrap';
 
 import jsn from "./dataset/world.geojson.txt"
-import csvjson from "./dataset/csvjson.json"
-import fakedata from "./dataset/fakedata.json"
+import extrajson from "./dataset/csvjson.json"
+import realjson from "./dataset/fakedata.json"
 
 const App = () => {
   //const [expression, setExpression] = useState('$[city="Chicago"]');
@@ -113,16 +113,16 @@ const App = () => {
   useEffect(() => {
     let dataViz;
     if(!extra){
-      fakedata.forEach(element => {
+      realjson.forEach(element => {
         if(element[birthDate][ + reverseViz] === 0)
           element.meanGender = ""
         else
           element.meanGender = (element[birthDate][ + reverseViz]/(element[birthDate][ + reverseViz]+element[birthDate][ + !reverseViz]))*100
       })
-      dataViz = fakedata
+      dataViz = realjson
     }
     else
-      dataViz = csvjson
+      dataViz = extrajson
     d3.json(jsn).then((json) => {
         let chart
         if(!extra){
@@ -154,16 +154,16 @@ const App = () => {
       <Form.Check 
         type="switch"
         id="custom-switch"
-        label="Men vizualisation"
+        label="Men vizualisation mod"
         checked={reverseViz ? false : true}
-        onChange={() => setReverseViz(!reverseViz)}
+        onChange={() => setReverseViz(false)}
       />
       <Form.Check 
         type="switch"
         id="custom-switch"
         label="Women vizualisation mod"
         checked={reverseViz ? true : false}
-        onChange={() => setReverseViz(!reverseViz)}
+        onChange={() => setReverseViz(true)}
       />
     </Form>
     <Form>
