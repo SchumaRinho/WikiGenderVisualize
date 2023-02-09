@@ -19,7 +19,7 @@ const App = () => {
   //const [expression, setExpression] = useState('$[city="Chicago"]');
   const [birthDate, setBirthDate] = useState(2000);
   const [country, setCountry] = useState('English');
-  const [extra, setExtra] = useState(false);
+  //const [extra, setExtra] = useState(false);
   const [reverseViz, setReverseViz] = useState(false);
   //const [value, setValue] = useState(0); 
 
@@ -58,13 +58,13 @@ const App = () => {
                 "$name",
                 " ",
                 (d) => {
-                  if (d.properties.meanMen && typeof d.properties.meanMen === 'number') {
-                    return "Men coverage: " + d.properties.meanMen.toFixed(2) + "%";
+                  if (d.properties.meanGender && typeof d.properties.meanGender === 'number') {
+                    return "Men coverage: " + Math.abs(menCoverage - d.properties.meanGender).toFixed(2) + "%";
                   } else {
                     return "No data collected for this country";
                   }
                 },
-                (d) => {return(d.properties.meanMen ==="" ? " " : "Women coverage : " + (100 - d.properties.meanMen).toFixed(2) + "%")},
+                (d) => {return(d.properties.meanGender ==="" ? " " : "Women coverage : " + (Math.abs(womenCoverage - d.properties.meanGender).toFixed(2) + "%"))},
                 " ",
                 (d) => {return(d.properties.meanGender ==="" ? " " : "------------- Details -------------")},
                 " ",
@@ -84,7 +84,7 @@ const App = () => {
     )
   }
 
-  const drawChartExtra = (world,data) => {
+  /*const drawChartExtra = (world,data) => {
     return(
       bertin.draw({
         params: { projection: geoEckert3() },
@@ -110,28 +110,26 @@ const App = () => {
         ]
       })
     )
-  }
+  }*/
 
   useEffect(() => {
     let dataViz;
-    if(!extra){
-      realjson.forEach(element => {
-        if(element[birthDate][ + reverseViz] === 0)
-          element.meanGender = ""
-        else
-          element.meanGender = (element[birthDate][ + reverseViz]/(element[birthDate][ + reverseViz]+element[birthDate][ + !reverseViz]))*100
-      })
-      dataViz = realjson
-    }
-    else
-      dataViz = extrajson
+    
+    realjson.forEach(element => {
+      if(element[birthDate][ + reverseViz] === 0)
+        element.meanGender = ""
+      else
+        element.meanGender = (element[birthDate][ + reverseViz]/(element[birthDate][ + reverseViz]+element[birthDate][ + !reverseViz]))*100
+    })
+    dataViz = realjson
+
+    //if(extra)
+    //  dataViz = extrajson
     d3.json(jsn).then((json) => {
         let chart
-        if(!extra){
-          chart = drawChart(json,dataViz);
-        }
-        else
-          chart = drawChartExtra(json,dataViz)
+        chart = drawChart(json,dataViz);        
+        //if(extra)
+        //  chart = drawChartExtra(json,dataViz)
         if(svg.current.firstChild == null)
           svg.current.appendChild(chart)
         else{
@@ -140,14 +138,12 @@ const App = () => {
         }
   })
   
-  },[birthDate,extra,reverseViz])
+  },[birthDate,/*extra,*/reverseViz])
 
   return (
     <>
     <div>
-      {birthDate < 0 ? 
-      <h1 style={{textAlign:"center",marginTop:40}}>{extra ? "Extrapolation of personalities's gender coverage born B.C (in "+country+" Wikipedia)" : "Personalities's gender coverage born B.C (in "+country+" Wikipedia)"}</h1>
-       : <h1 style={{textAlign:"center",marginTop:40}}>{extra ? "Extrapolation of personalities's gender coverage born in "+birthDate+" (in "+country+" Wikipedia)" :"Personalities's gender coverage born in "+birthDate+" (in "+country+" Wikipedia)"}</h1>}  
+      <h1 style={{textAlign:"center",marginTop:40}}>{birthDate < 0 ? "Personalities's gender coverage born B.C (in "+country+" Wikipedia)" : "Personalities's gender coverage born in "+birthDate+" (in "+country+" Wikipedia)"}</h1>
       <div style={{display: 'flex', justifyContent: 'space-between',marginTop:40}}>
         <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center'}}>
           <button style={{margin:25,padding:10,marginLeft:60,marginTop:100}} onClick={() => setReverseViz(false)}>
@@ -157,7 +153,7 @@ const App = () => {
             <img style={{width: 100}} src={female} alt="Symbole féminin" />
           </button>
         </div>
-        <div style={{width:"83%"}} ref={svg}></div>
+          <div style={{width:"83%"}} ref={svg}></div>
       </div>
       
       <Form style={{display: 'flex', justifyContent: 'center'}}>
@@ -166,6 +162,21 @@ const App = () => {
       <Form style={{display: 'flex', justifyContent: 'center'}}>
         <Form.Range style={{width:700}} value={birthDate} min={-100} max={2000} step={100} tooltip="on" onChange={(e) => setBirthDate(e.target.value)} title={birthDate}/>
       </Form>
+
+      
+    </div>  
+    </>
+  );
+};
+
+export default App;
+
+
+/*
+
+      {birthDate < 0 ? 
+      <h1 style={{textAlign:"center",marginTop:40}}>{extra ? "Extrapolation of personalities's gender coverage born B.C (in "+country+" Wikipedia)" : "Personalities's gender coverage born B.C (in "+country+" Wikipedia)"}</h1>
+       : <h1 style={{textAlign:"center",marginTop:40}}>{extra ? "Extrapolation of personalities's gender coverage born in "+birthDate+" (in "+country+" Wikipedia)" :"Personalities's gender coverage born in "+birthDate+" (in "+country+" Wikipedia)"}</h1>}
 
       <ToggleButtonGroup style={{display: 'flex', justifyContent: 'center', marginTop:25}} type="radio" name="options" defaultValue={1}>
         <ToggleButton style={{marginRight:25}} variant="primary" id="tbg-radio-1" value={1} onChange={() => setExtra(!extra)}>
@@ -178,16 +189,6 @@ const App = () => {
           ????
         </ToggleButton>
       </ToggleButtonGroup>
-    </div>  
-    </>
-  );
-};
-
-export default App;
-
-
-/*
-      <h1 style={{textAlign:"center",marginTop:40}}>{extra ? "Extrapolation of gender coverage of personalities born before "+birthDate+" (in "+country+" Wikipedia)" :"Gender coverage of personalities born before "+birthDate+" (in "+country+" Wikipedia)"}</h1>
 
  <Form>
       <Form.Group>
