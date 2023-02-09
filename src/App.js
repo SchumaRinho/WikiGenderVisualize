@@ -1,10 +1,9 @@
-import React, {useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 //import jsonata from 'jsonata';
 import * as d3 from "d3";
 import * as bertin from "bertin";
-import {geoEckert3} from "d3-geo-projection";
-import { Form, FormControl, OverlayTrigger, Tooltip} from 'react-bootstrap';
-import RangeSlider from 'react-bootstrap-range-slider';
+import { geoEckert3 } from "d3-geo-projection";
+import { Form } from 'react-bootstrap';
 
 import jsn from "./dataset/world.geojson.txt"
 import extrajson from "./dataset/csvjson.json"
@@ -22,7 +21,7 @@ const App = () => {
   const [country, setCountry] = useState('English');
   const [extra, setExtra] = useState(false);
   const [reverseViz, setReverseViz] = useState(false);
-  const [value, setValue] = useState(0); 
+  //const [value, setValue] = useState(0); 
 
 
   const svg = useRef(null);
@@ -158,9 +157,7 @@ const App = () => {
             <img style={{width: 100}} src={female} alt="Symbole féminin" />
           </button>
         </div>
-        {true && (
-          <div style={{width:"83%"}} ref={svg}></div>
-        )}
+        <div style={{width:"83%"}} ref={svg}></div>
       </div>
       
       <Form style={{display: 'flex', justifyContent: 'center'}}>
