@@ -5,7 +5,7 @@ import * as bertin from "bertin";
 import {geoEckert3} from "d3-geo-projection";
 import './App.css';
 
-import { Box, Grommet, RangeInput, RadioButtonGroup } from 'grommet';
+import { Box, Grommet, RangeInput, Tip,Text } from 'grommet';
 import { deepMerge } from 'grommet/utils';
 import { grommet } from 'grommet/themes';
 
@@ -163,10 +163,12 @@ const App = () => {
             </div>
             <div class="divRight" style={{flexDirection:"column"}}>
               <div class="divUnderMap">
-                <p>Personalities born before : {birthDate}</p> 
+                <p>Timeline of personalities birth date </p> 
               </div>
               <div class="divUnderMap">
-                <RangeInput color="#C48E76" style={{width:700}} value={birthDate} min={0} max={2000} step={100} onChange={(e) => setBirthDate(e.target.value)}/>
+                <Tip plain content={birthDate}>
+                  <RangeInput color="#C48E76" style={{width:700}} value={birthDate} min={0} max={2000} step={100} onChange={(e) => setBirthDate(e.target.value)} />
+                </Tip>
               </div>
             </div>
           </div>    
@@ -174,6 +176,7 @@ const App = () => {
     </Grommet>
   );
 };
+
 
 const customTheme= deepMerge(grommet,{
   global:{
