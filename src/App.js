@@ -5,7 +5,7 @@ import * as bertin from "bertin";
 import {geoEckert3} from "d3-geo-projection";
 import './App.css';
 
-import { Box, Grommet, RangeInput, Tip,Text } from 'grommet';
+import { Box, Grommet, RangeInput, Tip, Button } from 'grommet';
 import { deepMerge } from 'grommet/utils';
 import { grommet } from 'grommet/themes';
 
@@ -146,12 +146,8 @@ const App = () => {
       <h1>{birthDate < 0 ? "Personalities's gender coverage born B.C (in "+country+" Wikipedia)" : "Personalities's gender coverage born in "+birthDate+" (in "+country+" Wikipedia)"}</h1>
           <div class="divContainer">
             <div class="divLeft" style={{flex:0.1}}>
-              <button style={{marginTop:100}} onClick={() => setReverseViz(false)}>
-                <img src={male} alt="Symbole Masculin" />
-              </button>
-              <button onClick={() => setReverseViz(true)}>
-                <img src={female} alt="Symbole féminin" />
-              </button>
+              <Button style={{width:145, height:145, marginTop:100, backgroundColor:"#E6EAFF"}} margin="small" label={<img src={male} alt="Symbole Masculin" />} onClick={() => setReverseViz(false)}/>
+              <Button style={{width:145, height:145, backgroundColor:"#E6EAFF"}} margin="small" label={<img src={female} alt="Symbole féminin" />} onClick={() => setReverseViz(true)}/>
             </div>
             {true && (
               <div class="divRight" ref={svg}></div>
@@ -186,6 +182,7 @@ const customTheme= deepMerge(grommet,{
     colors:{
       brand:"#F8AE70",
       background:"#ADD8F7",
+      buttonBackground:"white",
     }
   }
 })

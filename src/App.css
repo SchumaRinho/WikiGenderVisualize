@@ -37,15 +37,6 @@
   }
 }
 
-button {
-  margin:25px;
-  margin-left:60px;
-  margin-right:0px; 
-  padding:10px; 
-  background-color: #F8AE70;
-  border-radius: 25px;
-}
-
 img {
   width:100px;
 }
@@ -72,6 +63,7 @@ p {
   display: flex;
   flex: 1;
   margin-left: 0px;
+  margin-top: 23px;
   justify-content: center;
 }
 
