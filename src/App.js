@@ -11,7 +11,7 @@ import { grommet } from 'grommet/themes';
 
 import jsn from "./dataset/world.geojson.txt"
 import extrajson from "./dataset/csvjson.json"
-import realjson from "./dataset/fakedata.json"
+import realjson from "./dataset/overallData.json"
 import male from "./image/Homme.png"
 import female from "./image/femme.png"
 
