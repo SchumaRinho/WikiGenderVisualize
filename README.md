@@ -10,5 +10,9 @@ Pour lancer l'application, il vous suffit de rentrer cette commande dans votre t
 - **npm start** 
 
 ----
+
 Travail réalisé par : Alexandre BELLEBON - Maxence CAFIER - Léo VINCENT
+
+Source des données : https://www.kaggle.com/datasets/imoore/age-dataset
+
 Pour toute information, contactez nous à cette adresse : 21805239@etu.unicaen.fr 
