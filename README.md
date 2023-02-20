@@ -9,6 +9,22 @@
 Pour lancer l'application, il vous suffit de rentrer cette commande dans votre terminal
 - **npm start** 
 
+Voici la liste des modules utilisé dans cette application : 
+
+- d3
+- d3-geo-projection
+- grommet
+- jsonata (optionnel) 
+- bertin
+
+----
+
+# Execution du code python
+
+Pour lancer le script python pour générer les données au format JSON. Il faut au préalable dézipper le fichier **externDataset.zip**. Ensuite il vous suffit d'exécuter le script.
+
+**!!! ATTENTION !!!** : Vous devez avoir au moins la version 3.10 de python ! 
+
 ----
 
 Travail réalisé par : Alexandre BELLEBON - Maxence CAFIER - Léo VINCENT
